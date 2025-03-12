@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "640573848229",
+    "project_id": "gametrackrgu",
+    "storage_bucket": "gametrackrgu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640573848229:android:ae6ff6f2765b1f9af62b4c",
+        "android_client_info": {
+          "package_name": "uk.ac.rgu.gamepls"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI9F7337Gl-EJS8ozyK1UDkmYqy1i3988"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

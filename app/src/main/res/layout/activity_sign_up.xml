@@ -42,7 +42,31 @@
                 android:layout_marginTop="40dp"
                 android:padding="8dp"
                 android:hint="Email"
+                android:drawableLeft="@drawable/baseline_email_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/signup_name"
+                android:background="@drawable/border"
+                android:layout_marginTop="20dp"
+                android:padding="8dp"
+                android:hint="Name"
                 android:drawableLeft="@drawable/baseline_person_24"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/signup_username"
+                android:background="@drawable/border"
+                android:layout_marginTop="20dp"
+                android:padding="8dp"
+                android:hint="Username"
+                android:drawableLeft="@drawable/baseline_person_pin_24"
                 android:drawablePadding="8dp"
                 android:textColor="@color/black"/>
 
@@ -67,6 +91,18 @@
                 android:layout_marginTop="30dp"
                 android:backgroundTint="@color/flamingo"
                 app:cornerRadius = "20dp"/>
+
+<!--            <com.google.android.material.button.MaterialButton-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Sign in with Google"-->
+<!--                android:id="@+id/googleBtn"-->
+<!--                app:isDarkTheme = "true"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:layout_marginTop="20dp"-->
+<!--                android:layout_marginStart="40dp"-->
+<!--                android:layout_marginEnd="40dp"-->
+<!--                android:padding="8dp"/>-->
 
             <TextView
                 android:layout_width="wrap_content"

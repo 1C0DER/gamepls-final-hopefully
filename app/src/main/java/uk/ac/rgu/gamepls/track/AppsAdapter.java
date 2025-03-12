@@ -1,4 +1,4 @@
-package uk.ac.rgu.gamepls;
+package uk.ac.rgu.gamepls.track;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import uk.ac.rgu.gamepls.R;
+import uk.ac.rgu.gamepls.track.App;
 
 public class AppsAdapter extends ArrayAdapter<App> {
     public AppsAdapter(Context context, ArrayList<App> appsList) {

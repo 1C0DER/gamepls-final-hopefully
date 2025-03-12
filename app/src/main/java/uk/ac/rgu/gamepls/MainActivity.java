@@ -28,6 +28,9 @@ import java.util.stream.Collectors;
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
 
+import uk.ac.rgu.gamepls.track.App;
+import uk.ac.rgu.gamepls.track.AppsAdapter;
+
 public class MainActivity extends AppCompatActivity {
 
     Button enableBtn, showBtn;

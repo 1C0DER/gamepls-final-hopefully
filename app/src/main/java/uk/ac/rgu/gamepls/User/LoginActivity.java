@@ -17,8 +17,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.Stack;
-
 import uk.ac.rgu.gamepls.MainActivity;
 import uk.ac.rgu.gamepls.R;
 
@@ -52,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                     @Override
                                     public void onSuccess(AuthResult authResult) {
-                                        Toast.makeText(LoginActivity.this, "Login Sucecssful", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                         finish();
                                     }
@@ -65,10 +63,10 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         loginPassword.setError("Password cannot be empty");
                     }
-                } else if(email.isEmpty()) {
+                } else if (email.isEmpty()) {
                     loginEmail.setError("Email cannot be empty");
                 } else {
-                    loginEmail.setError("Please enter valid email");
+                    loginEmail.setError("Please enter a valid email");
                 }
             }
         });
@@ -76,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         signupRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this,SignUpActivity.class));
+                startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             }
         });
     }

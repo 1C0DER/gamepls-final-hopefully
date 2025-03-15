@@ -7,15 +7,28 @@
     android:background="@drawable/rotflam"
     tools:context=".User.ProfileActivity">
 
+    <ImageButton
+        android:id="@+id/backArrow"
+        android:layout_width="66dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="36dp"
+        android:backgroundTint="@color/material_on_surface_stroke"
+        android:src="@drawable/baseline_arrow_back_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.115"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
+        android:id="@+id/profileImg"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:id="@+id/profileImg"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="36dp"
         android:src="@drawable/profile_circle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintHorizontal_bias="0.294"
+        app:layout_constraintStart_toEndOf="@+id/backArrow"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,7 +36,7 @@
         android:id="@+id/profileName"
         android:layout_marginTop="10dp"
         android:text="Name"
-        android:textColor="@color/white"
+        android:textColor="@color/flamingo"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/profileImg"
@@ -35,7 +48,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/profileUsername"
         android:text="username"
-        android:textColor="@color/white"
+        android:textColor="@color/flamingo"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="@id/profileName"
         app:layout_constraintStart_toStartOf="@id/profileName"
@@ -46,7 +59,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/profileEmail"
         android:text="email"
-        android:textColor="@color/white"
+        android:textColor="@color/flamingo"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="@id/profileUsername"
         app:layout_constraintStart_toStartOf="@id/profileUsername"

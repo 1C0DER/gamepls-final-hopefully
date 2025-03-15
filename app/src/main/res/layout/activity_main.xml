@@ -46,6 +46,16 @@
         android:layout_height="wrap_content"
         android:text="Profile" />
 
+    <Button
+        android:id="@+id/indexProfile_btn"
+        android:layout_width="300dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#fff"
+        android:background="#4285f4"
+        android:layout_marginTop="30dp"
+        android:layout_height="wrap_content"
+        android:text="Home" />
+
     <TextView
         android:id="@+id/usage_tv"
         android:visibility="gone"

@@ -36,7 +36,7 @@ import uk.ac.rgu.gamepls.track.AppsAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button enableBtn, profileBtn, showBtn;
+    Button enableBtn, profileBtn, showBtn, indexProfile_btn;
     TextView permissionDescriptionTv, usageTv;
     ListView appsList;
 
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         enableBtn = findViewById(R.id.enable_btn);
         profileBtn = findViewById(R.id.profile_btn);
         showBtn = findViewById(R.id.show_btn);
+        indexProfile_btn = findViewById(R.id.indexProfile_btn);
         permissionDescriptionTv = findViewById(R.id.permission_description_tv);
         usageTv = findViewById(R.id.usage_tv);
         appsList = findViewById(R.id.apps_list);
@@ -73,6 +74,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        indexProfile_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -160,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         usageTv.setVisibility(View.GONE);
         appsList.setVisibility(View.GONE);
         profileBtn.setVisibility(View.GONE);
+        indexProfile_btn.setVisibility(View.GONE);
     }
 
     public void showHideWithPermission() {
@@ -169,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
         usageTv.setVisibility(View.GONE);
         appsList.setVisibility(View.GONE);
         profileBtn.setVisibility(View.VISIBLE);
+        indexProfile_btn.setVisibility(View.GONE);
     }
 
     public void showHideItemsWhenShowApps() {
@@ -178,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
         usageTv.setVisibility(View.VISIBLE);
         appsList.setVisibility(View.VISIBLE);
         profileBtn.setVisibility(View.GONE);
+        indexProfile_btn.setVisibility(View.VISIBLE);
     }
 
     // Helper method to format the usage time

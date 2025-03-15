@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         showBtn.setVisibility(View.GONE);
         usageTv.setVisibility(View.GONE);
         appsList.setVisibility(View.GONE);
+        profileBtn.setVisibility(View.GONE);
     }
 
     public void showHideWithPermission() {
@@ -167,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         showBtn.setVisibility(View.VISIBLE);
         usageTv.setVisibility(View.GONE);
         appsList.setVisibility(View.GONE);
+        profileBtn.setVisibility(View.VISIBLE);
     }
 
     public void showHideItemsWhenShowApps() {
@@ -175,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         showBtn.setVisibility(View.GONE);
         usageTv.setVisibility(View.VISIBLE);
         appsList.setVisibility(View.VISIBLE);
+        profileBtn.setVisibility(View.GONE);
     }
 
     // Helper method to format the usage time

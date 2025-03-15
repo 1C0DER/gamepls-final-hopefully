@@ -47,7 +47,7 @@
         android:text="Profile" />
 
     <Button
-        android:id="@+id/indexProfile_btn"
+        android:id="@+id/indexHome_btn"
         android:layout_width="300dp"
         android:layout_gravity="center_horizontal"
         android:textColor="#fff"

@@ -28,12 +28,15 @@ import java.util.stream.Collectors;
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
 
+import uk.ac.rgu.gamepls.User.LoginActivity;
+import uk.ac.rgu.gamepls.User.ProfileActivity;
+import uk.ac.rgu.gamepls.User.SignUpActivity;
 import uk.ac.rgu.gamepls.track.App;
 import uk.ac.rgu.gamepls.track.AppsAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button enableBtn, showBtn;
+    Button enableBtn, profileBtn, showBtn;
     TextView permissionDescriptionTv, usageTv;
     ListView appsList;
 
@@ -43,12 +46,33 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         enableBtn = findViewById(R.id.enable_btn);
+        profileBtn = findViewById(R.id.profile_btn);
         showBtn = findViewById(R.id.show_btn);
         permissionDescriptionTv = findViewById(R.id.permission_description_tv);
         usageTv = findViewById(R.id.usage_tv);
         appsList = findViewById(R.id.apps_list);
 
         loadStatistics();  // Load statistics on activity creation
+
+        profileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+
+                // Get the data passed from LoginActivity
+                String name = getIntent().getStringExtra("name");
+                String email = getIntent().getStringExtra("email");
+                String username = getIntent().getStringExtra("username");
+
+                // Pass the data to ProfileActivity
+                intent.putExtra("name", name);
+                intent.putExtra("email", email);
+                intent.putExtra("username", username);
+
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override

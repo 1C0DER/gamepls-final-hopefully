@@ -36,6 +36,16 @@
         android:layout_height="wrap_content"
         android:text="Show My Apps Usage" />
 
+    <Button
+        android:id="@+id/profile_btn"
+        android:layout_width="300dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#fff"
+        android:background="#4285f4"
+        android:layout_marginTop="30dp"
+        android:layout_height="wrap_content"
+        android:text="Profile" />
+
     <TextView
         android:id="@+id/usage_tv"
         android:visibility="gone"

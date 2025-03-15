@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/rotflam"
+    tools:context=".User.ProfileActivity">
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/profileImg"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/profile_circle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profileName"
+        android:layout_marginTop="10dp"
+        android:text="Name"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/profileImg"
+        app:layout_constraintStart_toStartOf="@+id/profileImg"
+        app:layout_constraintTop_toBottomOf="@id/profileImg"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profileUsername"
+        android:text="username"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@id/profileName"
+        app:layout_constraintStart_toStartOf="@id/profileName"
+        app:layout_constraintTop_toBottomOf="@id/profileName"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profileEmail"
+        android:text="email"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@id/profileUsername"
+        app:layout_constraintStart_toStartOf="@id/profileUsername"
+        app:layout_constraintTop_toBottomOf="@id/profileUsername"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/LinearLayout"
+        android:padding="10dp"
+        android:background="@drawable/white_back"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profileEmail">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:elevation="3dp"
+                android:padding="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/totalHoursNum"
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:gravity="center"
+                    android:text="300"
+                    android:textAlignment="center"
+                    android:textColor="@color/flamingo"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/totalHours"
+                    android:text="Total Hours"
+                    android:textAlignment="center"
+                    android:textColor="@color/flamingo"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:elevation="3dp"
+                android:padding="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:id="@+id/dayHoursNum"
+                    android:text="17"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="@color/flamingo"
+                    android:textSize="26sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/todaysHours"
+                    android:text="Today's Hours"
+                    android:textAlignment="center"
+                    android:textColor="@color/flamingo"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

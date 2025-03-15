@@ -85,7 +85,7 @@ public class SignUpActivity extends AppCompatActivity {
                             reference = database.getReference("users");
 
                             HelperClass helperClass = new HelperClass(name, email, username, pass);
-                            reference.child(userId).setValue(helperClass).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            reference.child(email).setValue(helperClass).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {

@@ -5,6 +5,7 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -28,9 +29,7 @@ import java.util.stream.Collectors;
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
 
-import uk.ac.rgu.gamepls.User.LoginActivity;
 import uk.ac.rgu.gamepls.User.ProfileActivity;
-import uk.ac.rgu.gamepls.User.SignUpActivity;
 import uk.ac.rgu.gamepls.track.App;
 import uk.ac.rgu.gamepls.track.AppsAdapter;
 
@@ -55,21 +54,20 @@ public class MainActivity extends AppCompatActivity {
 
         loadStatistics();  // Load statistics on activity creation
 
+        // Retrieve data from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE);
+        String name = sharedPreferences.getString("name", "No Name");
+        String email = sharedPreferences.getString("email", "No Email");
+        String username = sharedPreferences.getString("username", "No Username");
+
+        // Pass the data to ProfileActivity
         profileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-
-                // Get the data passed from LoginActivity
-                String name = getIntent().getStringExtra("name");
-                String email = getIntent().getStringExtra("email");
-                String username = getIntent().getStringExtra("username");
-
-                // Pass the data to ProfileActivity
                 intent.putExtra("name", name);
                 intent.putExtra("email", email);
                 intent.putExtra("username", username);
-
                 startActivity(intent);
             }
         });
@@ -93,6 +91,16 @@ public class MainActivity extends AppCompatActivity {
             showHideNoPermission();
             enableBtn.setOnClickListener(view -> startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
         }
+    }
+
+    // Store user data in SharedPreferences
+    public void storeUserData(String name, String email, String username) {
+        SharedPreferences sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("name", name);
+        editor.putString("email", email);
+        editor.putString("username", username);
+        editor.apply();
     }
 
     // Check if PACKAGE_USAGE_STATS permission is granted

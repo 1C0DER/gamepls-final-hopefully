@@ -3,7 +3,9 @@ package uk.ac.rgu.gamepls.User;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -110,6 +112,14 @@ public class LoginActivity extends AppCompatActivity {
                                     String nameFromDB = snapshot.child("name").getValue(String.class);
                                     String emailFromDB = snapshot.child("email").getValue(String.class);
                                     String usernameFromDB = snapshot.child("username").getValue(String.class);
+
+                                    // Save data to SharedPreferences
+                                    SharedPreferences sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("name", nameFromDB);
+                                    editor.putString("email", emailFromDB);
+                                    editor.putString("username", usernameFromDB);
+                                    editor.apply(); // Apply changes to SharedPreferences
 
                                     // Pass the data to MainActivity
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);

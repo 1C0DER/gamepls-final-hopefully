@@ -65,6 +65,17 @@
         app:layout_constraintStart_toStartOf="@id/profileUsername"
         app:layout_constraintTop_toBottomOf="@id/profileUsername"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profilePassword"
+        android:text="Password"
+        android:textColor="@color/flamingo"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@id/profileEmail"
+        app:layout_constraintStart_toStartOf="@id/profileEmail"
+        app:layout_constraintTop_toBottomOf="@id/profileEmail"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -76,7 +87,7 @@
         android:layout_marginTop="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profileEmail">
+        app:layout_constraintTop_toBottomOf="@id/profilePassword">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -148,5 +159,18 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/editButton"
+        android:layout_width="368dp"
+        android:layout_height="89dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="Edit Profile"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

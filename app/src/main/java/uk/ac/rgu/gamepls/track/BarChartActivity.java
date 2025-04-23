@@ -1,24 +1,22 @@
 package uk.ac.rgu.gamepls.track;
 
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import com.github.mikephil.charting.charts.BarChart;  // Import BarChart
-import com.github.mikephil.charting.data.BarEntry;  // Import BarEntry
-import com.github.mikephil.charting.data.BarDataSet;  // Import BarDataSet
-import com.github.mikephil.charting.data.BarData;  // Import BarData
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
-
 import android.view.View;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 import uk.ac.rgu.gamepls.MainActivity;
 import uk.ac.rgu.gamepls.R;
 
@@ -47,21 +45,44 @@ public class BarChartActivity extends AppCompatActivity {
 
     // Method to load the statistics for the past 7 days and update the BarChart
     public void loadStatistics() {
-        // You can replace this with actual logic to get daily app usage data
-        long[] dailyUsage = new long[7];  // Array to store total usage for each of the 7 days
-        dailyUsage[0] = 12000000;  // Example: 12 seconds on Sunday
-        dailyUsage[1] = 5000000;   // Example: 5 seconds on Monday
-        dailyUsage[2] = 6000000;   // Example: 6 seconds on Tuesday
-        dailyUsage[3] = 10000000;  // Example: 10 seconds on Wednesday
-        dailyUsage[4] = 8000000;   // Example: 8 seconds on Thursday
-        dailyUsage[5] = 7000000;   // Example: 7 seconds on Friday
-        dailyUsage[6] = 11000000;  // Example: 11 seconds on Saturday
+        UsageStatsManager usm = (UsageStatsManager) this.getSystemService(USAGE_STATS_SERVICE);
 
+        // Get the current date
+        Calendar calendar = Calendar.getInstance();
+        long endTime = System.currentTimeMillis();
+        calendar.add(Calendar.DAY_OF_YEAR, -6);  // Start from 7 days ago
+        long startTime = calendar.getTimeInMillis();
+
+        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        // Create a list to hold the daily total usage time for 7 days
+        long[] dailyUsage = new long[7];  // Array to store total usage for each of the 7 days
+
+        // Fill dailyUsage with the total time used for each day
+        for (UsageStats usageStats : appList) {
+            int dayOfWeek = getDayOfWeek(usageStats.getLastTimeUsed());
+            long totalTime = usageStats.getTotalTimeInForeground();
+            dailyUsage[dayOfWeek] += totalTime;  // Update the respective day with the usage time
+        }
+
+        // Update the BarChart with the new data
         updateBarChart(dailyUsage);
+    }
+
+    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+    private int getDayOfWeek(long timeInMillis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMillis);
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1;  // Adjust for 0-based index (Sunday = 0, Saturday = 6)
     }
 
     // Update the BarChart with the data for 7 days
     private void updateBarChart(long[] dailyUsage) {
+
+        int[] colors = {
+                Color.GREEN, Color.YELLOW, Color.RED, Color.BLUE, Color.CYAN, Color.MAGENTA, Color.GRAY
+        };
+
         ArrayList<BarEntry> barEntries = new ArrayList<>();
 
         // Prepare the data for each day of the week (Sunday to Saturday)
@@ -107,16 +128,17 @@ public class BarChartActivity extends AppCompatActivity {
             }
         });
 
-        // Create the BarData object and set it on the chart
+        // Create a dataset for the bar chart
         BarDataSet barDataSet = new BarDataSet(barEntries, "App Usage");
-        barDataSet.setColors(ColorTemplate.MATERIAL_COLORS);  // Set colors for each bar
-        barDataSet.setValueTextSize(14f);  // Set the text size for percentage
-        barDataSet.setValueTextColor(Color.BLACK);  // Set the text color
+        barDataSet.setColors(colors);  // Assign the different colors to the bars
+        barDataSet.setValueTextSize(14f);
+        barDataSet.setValueTextColor(Color.BLACK);
 
-        // Create the BarData object with a single dataset
+        // Create the BarData object and set it on the chart
         BarData barData = new BarData(barDataSet);
         barChart.setData(barData);
 
-        barChart.invalidate();  // Refresh the chart
+        // Refresh the chart
+        barChart.invalidate();
     }
 }

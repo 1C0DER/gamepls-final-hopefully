@@ -110,13 +110,16 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // Calculate the total time spent on apps and update the TextView
+// Inside ProfileActivity.java
+
+    // Method to calculate the total time spent on apps (all-time)
     private void calculateTotalUsageTime() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
         long totalTime = 0;
 
         // Get the current date
         long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24 * 7;  // Past 7 days
+        long startTime = endTime - 1000 * 3600 * 24 * 7;  // Last 7 days
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
 
@@ -126,20 +129,20 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         // Convert total time in milliseconds to hours
-        float totalHours = totalTime / 3600000f;
+        float totalHours = totalTime / 3600000f;  // Convert from milliseconds to hours
 
         // Update the total hours TextView
         totalHoursNum.setText(String.format("%.2f", totalHours));  // Set to 2 decimal places
     }
 
-    // Calculate the total time spent on apps today and update the TextView
+    // Method to calculate the total time spent on apps today
     private void calculateTodayUsageTime() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
         long totalTimeToday = 0;
 
         // Get the current date
         long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24;  // Current day
+        long startTime = endTime - 1000 * 3600 * 24;  // Start of today (last 24 hours)
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
 

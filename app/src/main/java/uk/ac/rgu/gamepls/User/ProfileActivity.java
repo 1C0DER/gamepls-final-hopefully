@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -109,24 +110,23 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    // Calculate the total time spent on apps and update the TextView
+    // Calculate the total time spent on apps and update the TextView (Total Hours for all time)
     private void calculateTotalUsageTime() {
-        UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
-        long totalTime = 0;
+        // Get the current user's ID
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Get the current date
-        long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24 * 7;  // Past 7 days
+        // Get SharedPreferences to save total time
+        SharedPreferences sharedPreferences = getSharedPreferences("userData", MODE_PRIVATE); // <-- Fix here!
+        long totalTime = sharedPreferences.getLong("totalUsageTime", 0);  // Default is 0 if not yet set
 
-        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
-
-        // Sum up the usage time for each app
-        for (UsageStats usageStats : appList) {
-            totalTime += usageStats.getTotalTimeInForeground();
+        // Check if total time is 0 and then set it for the first time
+        if (totalTime == 0) {
+            // First time calculation: set some default value or do a fresh calculation
+            totalTime = 0;
         }
 
         // Convert total time in milliseconds to hours
-        float totalHours = totalTime / 3600000f;
+        float totalHours = totalTime / 3600000f;  // Convert from milliseconds to hours
 
         // Update the total hours TextView
         totalHoursNum.setText(String.format("%.2f", totalHours));  // Set to 2 decimal places
@@ -153,6 +153,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Update the today's hours TextView
         dayHoursNum.setText(String.format("%.2f", totalHoursToday));  // Set to 2 decimal places
+
+        // Save the total usage time for today to SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("userData", MODE_PRIVATE); // <-- Fix here!
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong("totalUsageTime", totalTimeToday + sharedPreferences.getLong("totalUsageTime", 0));  // Add today's time to total
+        editor.apply();
     }
 
     // Pass the user data to the ProfileEditActivity

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum;
+    TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum, dayHoursNum;
     Button editProfile;
     ImageButton backArrow;
 
@@ -42,7 +42,8 @@ public class ProfileActivity extends AppCompatActivity {
         profileEmail = findViewById(R.id.profileEmail);
         profileUsername = findViewById(R.id.profileUsername);
         profilePassword = findViewById(R.id.profilePassword);
-        totalHoursNum = findViewById(R.id.totalHoursNum);  // TextView to display total hours
+        totalHoursNum = findViewById(R.id.totalHoursNum);  // TextView to display total hours for all time
+        dayHoursNum = findViewById(R.id.dayHoursNum);  // TextView to display today's hours
         backArrow = findViewById(R.id.backArrow);
         editProfile = findViewById(R.id.editButton);
 
@@ -66,8 +67,11 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        // Calculate and display the total usage time
+        // Calculate and display the total usage time for all time
         calculateTotalUsageTime();
+
+        // Calculate and display the total usage time for today
+        calculateTodayUsageTime();
     }
 
     // Fetch user data from Firebase and display it
@@ -126,6 +130,29 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Update the total hours TextView
         totalHoursNum.setText(String.format("%.2f", totalHours));  // Set to 2 decimal places
+    }
+
+    // Calculate the total time spent on apps today and update the TextView
+    private void calculateTodayUsageTime() {
+        UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
+        long totalTimeToday = 0;
+
+        // Get the current date
+        long endTime = System.currentTimeMillis();
+        long startTime = endTime - 1000 * 3600 * 24;  // Current day
+
+        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        // Sum up the usage time for each app
+        for (UsageStats usageStats : appList) {
+            totalTimeToday += usageStats.getTotalTimeInForeground();
+        }
+
+        // Convert total time in milliseconds to hours
+        float totalHoursToday = totalTimeToday / 3600000f;
+
+        // Update the today's hours TextView
+        dayHoursNum.setText(String.format("%.2f", totalHoursToday));  // Set to 2 decimal places
     }
 
     // Pass the user data to the ProfileEditActivity

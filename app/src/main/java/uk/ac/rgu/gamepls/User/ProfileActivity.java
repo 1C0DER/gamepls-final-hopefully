@@ -20,10 +20,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import uk.ac.rgu.gamepls.MainActivity;
 import uk.ac.rgu.gamepls.R;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    TextView profileName, profileEmail, profileUsername, profilePassword;
+    TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum;
     Button editProfile;
     ImageButton backArrow;
 
@@ -37,6 +42,7 @@ public class ProfileActivity extends AppCompatActivity {
         profileEmail = findViewById(R.id.profileEmail);
         profileUsername = findViewById(R.id.profileUsername);
         profilePassword = findViewById(R.id.profilePassword);
+        totalHoursNum = findViewById(R.id.totalHoursNum);  // TextView to display total hours
         backArrow = findViewById(R.id.backArrow);
         editProfile = findViewById(R.id.editButton);
 
@@ -59,6 +65,9 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // Calculate and display the total usage time
+        calculateTotalUsageTime();
     }
 
     // Fetch user data from Firebase and display it
@@ -94,6 +103,29 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.e("FirebaseError", "Error retrieving user data: " + error.getMessage());
             }
         });
+    }
+
+    // Calculate the total time spent on apps and update the TextView
+    private void calculateTotalUsageTime() {
+        UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
+        long totalTime = 0;
+
+        // Get the current date
+        long endTime = System.currentTimeMillis();
+        long startTime = endTime - 1000 * 3600 * 24 * 7;  // Past 7 days
+
+        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        // Sum up the usage time for each app
+        for (UsageStats usageStats : appList) {
+            totalTime += usageStats.getTotalTimeInForeground();
+        }
+
+        // Convert total time in milliseconds to hours
+        float totalHours = totalTime / 3600000f;
+
+        // Update the total hours TextView
+        totalHoursNum.setText(String.format("%.2f", totalHours));  // Set to 2 decimal places
     }
 
     // Pass the user data to the ProfileEditActivity

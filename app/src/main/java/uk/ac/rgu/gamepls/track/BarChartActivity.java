@@ -70,10 +70,21 @@ public class BarChartActivity extends AppCompatActivity {
     }
 
     // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-    private int getDayOfWeek(long timeInMillis) {
+    // Assuming today is Wednesday, and we want to show the last 7 days
+    public int getDayOfWeek(long timeInMillis) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMillis);
-        return calendar.get(Calendar.DAY_OF_WEEK) - 1;  // Adjust for 0-based index (Sunday = 0, Saturday = 6)
+
+        // Adjust so that today is 0 (Wednesday), and days go backward from there
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;  // Adjust for Sunday = 0, Monday = 1, etc.
+
+        // If it's Wednesday, ensure the index starts from 0
+        // The logic below ensures correct alignment for the 7 days
+        if (dayOfWeek == 0) {
+            return 6;  // If it's Sunday (0), we make it the last day of the week
+        } else {
+            return dayOfWeek - 1;  // Shift all the days back by 1
+        }
     }
 
     // Update the BarChart with the data for 7 days

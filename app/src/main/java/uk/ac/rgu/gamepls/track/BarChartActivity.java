@@ -1,5 +1,6 @@
 package uk.ac.rgu.gamepls.track;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,11 +13,13 @@ import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import android.view.View;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import uk.ac.rgu.gamepls.MainActivity;
 import uk.ac.rgu.gamepls.R;
 
 public class BarChartActivity extends AppCompatActivity {
@@ -32,6 +35,14 @@ public class BarChartActivity extends AppCompatActivity {
 
         // You would call your method to load data and update the chart
         loadStatistics();
+    }
+
+    // This method will be called when the ImageButton is clicked
+    public void onBackArrowClick(View view) {
+        // Create an Intent to navigate back to MainActivity
+        Intent intent = new Intent(BarChartActivity.this, MainActivity.class);
+        startActivity(intent); // Start the MainActivity
+        finish(); // Optionally finish the current activity if you want to remove it from the back stack
     }
 
     // Method to load the statistics for the past 7 days and update the BarChart

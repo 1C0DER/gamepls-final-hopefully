@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "640573848229",
+    "firebase_url": "https://gametrackrgu-default-rtdb.firebaseio.com",
     "project_id": "gametrackrgu",
     "storage_bucket": "gametrackrgu.firebasestorage.app"
   },

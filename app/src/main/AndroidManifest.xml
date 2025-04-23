@@ -49,6 +49,10 @@
             android:name=".User.ProfileEditActivity"
             android:exported="false">
         </activity>
+        <activity
+            android:name=".track.BarChartActivity"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -19,13 +18,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,13 +33,13 @@ import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
 import uk.ac.rgu.gamepls.User.ProfileActivity;
 import uk.ac.rgu.gamepls.track.App;
 import uk.ac.rgu.gamepls.track.AppsAdapter;
+import uk.ac.rgu.gamepls.track.BarChartActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button enableBtn, profileBtn, showBtn, indexHome_btn;
+    Button enableBtn, profileBtn, showBtn, indexHome_btn, viewBarChartBtn;
     TextView permissionDescriptionTv, usageTv;
     ListView appsList;
-    PieChart pieChart; // Declare PieChart
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,30 +50,28 @@ public class MainActivity extends AppCompatActivity {
         profileBtn = findViewById(R.id.profile_btn);
         showBtn = findViewById(R.id.show_btn);
         indexHome_btn = findViewById(R.id.indexHome_btn);
+        viewBarChartBtn = findViewById(R.id.viewBarChartBtn);
         permissionDescriptionTv = findViewById(R.id.permission_description_tv);
         usageTv = findViewById(R.id.usage_tv);
         appsList = findViewById(R.id.apps_list);
 
-        pieChart = findViewById(R.id.pieChart); // Initialize PieChart
-
-        if (pieChart == null) {
-            Log.e("MainActivity", "PieChart is not initialized correctly");
-        } else {
-            Log.d("MainActivity", "PieChart initialized successfully");
-        }
-
-        loadStatistics();  // Load statistics on activity creation
-
-        // Retrieve data from SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE);
-        String name = sharedPreferences.getString("name", "No Name");
-        String email = sharedPreferences.getString("email", "No Email");
-        String username = sharedPreferences.getString("username", "No Username");
+        // On show button click, load the statistics
+        showBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadStatistics();
+            }
+        });
 
         // Pass the data to ProfileActivity
         profileBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SharedPreferences sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE);
+                String name = sharedPreferences.getString("name", "No Name");
+                String email = sharedPreferences.getString("email", "No Email");
+                String username = sharedPreferences.getString("username", "No Username");
+
                 Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
                 intent.putExtra("name", name);
                 intent.putExtra("email", email);
@@ -94,6 +84,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // Set onClickListener to navigate to BarChartActivity
+        viewBarChartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start BarChartActivity when button is clicked
+                Intent intent = new Intent(MainActivity.this, BarChartActivity.class);
                 startActivity(intent);
             }
         });
@@ -145,9 +145,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Display the apps usage stats and update the PieChart
+    // Display the apps usage stats
     public void showAppsUsage(Map<String, UsageStats> sortedMap) {
-        ArrayList<PieEntry> pieEntries = new ArrayList<>();
         ArrayList<App> apps = new ArrayList<>();
         List<UsageStats> usageStatsList = new ArrayList<>(sortedMap.values());
 
@@ -159,46 +158,42 @@ public class MainActivity extends AppCompatActivity {
         for (UsageStats usageStats : usageStatsList) {
             try {
                 String packageName = usageStats.getPackageName();
-                Drawable icon = getDrawable(R.drawable.no_image);
                 String appName = packageName.split("\\.")[packageName.split("\\.").length - 1];
 
+                // Set the default icon if the app info is unavailable
+                Drawable icon = getDrawable(R.drawable.no_image); // Default icon
+
+                try {
+                    ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName, 0);
+                    icon = getPackageManager().getApplicationIcon(ai); // Get actual app icon
+                } catch (PackageManager.NameNotFoundException e) {
+                    Log.e("IconError", "Icon for package " + packageName + " not found.");
+                    Log.d("IconDebug", "Trying to fetch icon for " + packageName);
+                }
+
+                // If app info is available, get the actual icon
                 if (isAppInfoAvailable(usageStats)) {
                     ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName, 0);
-                    icon = getPackageManager().getApplicationIcon(ai);
-                    appName = getPackageManager().getApplicationLabel(ai).toString();
+                    icon = getPackageManager().getApplicationIcon(ai);  // Get app icon
+                    appName = getPackageManager().getApplicationLabel(ai).toString();  // Get app name
                 }
 
                 String usageDuration = getDurationBreakdown(usageStats.getTotalTimeInForeground());
                 int usagePercentage = (int) (usageStats.getTotalTimeInForeground() * 100 / totalTime);
 
-                // Create App object with the usage data
-                App app = new App(icon, appName, usagePercentage, usageDuration);
-                apps.add(app);
-
-                // Add PieEntry to list
-                pieEntries.add(new PieEntry(usagePercentage, appName));
+                // Skip apps with zero usage time
+                if (usagePercentage > 0) {
+                    // Create App object with the usage data
+                    App app = new App(icon, appName, usagePercentage, usageDuration);
+                    apps.add(app);
+                }
 
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
         }
 
-        // Set PieChart data
-        PieDataSet pieDataSet = new PieDataSet(pieEntries, "App Usage");
-        pieDataSet.setColors(ColorTemplate.MATERIAL_COLORS);  // Set different colors for each slice
-        pieDataSet.setValueTextSize(14f);  // Set the text size for percentage
-        pieDataSet.setValueTextColor(Color.BLACK);  // Set the text color
-
-        PieData pieData = new PieData(pieDataSet);
-        pieChart.setData(pieData);
-
-        // Optional: Customize PieChart
-        Description description = new Description();
-        description.setText("App Usage Percentage");
-        pieChart.setDescription(description);
-        pieChart.invalidate();  // Refresh the chart
-
-        // Populate ListView (if you want to show the data in the list as well)
+        // Populate ListView with app data
         AppsAdapter adapter = new AppsAdapter(this, apps);
         appsList.setAdapter(adapter);
 
@@ -213,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
         usageTv.setVisibility(View.GONE);
         appsList.setVisibility(View.GONE);
         profileBtn.setVisibility(View.GONE);
-        pieChart.setVisibility(View.GONE);
         indexHome_btn.setVisibility(View.GONE);
+        viewBarChartBtn.setVisibility(View.GONE);
     }
 
     public void showHideWithPermission() {
@@ -225,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         appsList.setVisibility(View.GONE);
         profileBtn.setVisibility(View.VISIBLE);
         indexHome_btn.setVisibility(View.GONE);
-        pieChart.setVisibility(View.VISIBLE);
+        viewBarChartBtn.setVisibility(View.VISIBLE);
     }
 
     public void showHideItemsWhenShowApps() {
@@ -236,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
         appsList.setVisibility(View.VISIBLE);
         profileBtn.setVisibility(View.GONE);
         indexHome_btn.setVisibility(View.VISIBLE);
-        pieChart.setVisibility(View.GONE);
+        viewBarChartBtn.setVisibility(View.GONE);
     }
 
     // Helper method to format the usage time

@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     TextView permissionDescriptionTv, usageTv;
     ListView appsList;
 
+    private static final String TAG = "AppUsageTracker";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,11 +58,11 @@ public class MainActivity extends AppCompatActivity {
         usageTv = findViewById(R.id.usage_tv);
         appsList = findViewById(R.id.apps_list);
 
-        // On show button click, load the statistics
+        // On show button click, load the statistics, log them, and update the UI
         showBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadStatistics();
+                loadStatisticsAndDisplay();
             }
         });
 
@@ -104,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         if (getGrantStatus()) {
             showHideWithPermission();
-            showBtn.setOnClickListener(view -> loadStatistics());
+            showBtn.setOnClickListener(view -> loadStatisticsAndDisplay());
         } else {
             showHideNoPermission();
             enableBtn.setOnClickListener(view -> startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)));
@@ -128,13 +131,13 @@ public class MainActivity extends AppCompatActivity {
         return (mode == MODE_ALLOWED);
     }
 
-    // Load the statistics of apps usage for the last session or a longer period
-    public void loadStatistics() {
+    // Load the statistics of apps usage for the last 24 hours, log them, and update the UI
+    public void loadStatisticsAndDisplay() {
         UsageStatsManager usm = (UsageStatsManager) this.getSystemService(USAGE_STATS_SERVICE);
 
-        // Query usage stats for the past 7 days (instead of just 24 hours)
+        // Query usage stats for the past 24 hours
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-                System.currentTimeMillis() - 1000 * 3600 * 24 * 7, System.currentTimeMillis());
+                System.currentTimeMillis() - 1000 * 3600 * 24, System.currentTimeMillis());
 
         appList = appList.stream().filter(app -> app.getTotalTimeInForeground() > 0).collect(Collectors.toList());
 
@@ -143,26 +146,19 @@ public class MainActivity extends AppCompatActivity {
             for (UsageStats usageStats : appList) {
                 sortedMap.put(usageStats.getPackageName(), usageStats);
             }
+            logAppsUsage(sortedMap);
             showAppsUsage(sortedMap);
+        } else {
+            Log.i(TAG, "No app usage data found for the last 24 hours.");
+            // Optionally clear the list view if there's no data
+            AppsAdapter adapter = new AppsAdapter(this, new ArrayList<>());
+            appsList.setAdapter(adapter);
         }
     }
 
-    // Store usage data in SharedPreferences
-    public void saveUsageData(String packageName, long totalTimeInForeground) {
-        SharedPreferences sharedPreferences = getSharedPreferences("usageData", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(packageName, totalTimeInForeground);
-        editor.apply();
-    }
-
-    public long getSavedUsageData(String packageName) {
-        SharedPreferences sharedPreferences = getSharedPreferences("usageData", MODE_PRIVATE);
-        return sharedPreferences.getLong(packageName, 0);  // Default to 0 if not found
-    }
-
-    // Display the apps usage stats
-    public void showAppsUsage(Map<String, UsageStats> sortedMap) {
-        ArrayList<App> apps = new ArrayList<>();
+    // Log the apps usage stats
+    public void logAppsUsage(Map<String, UsageStats> sortedMap) {
+        Log.i(TAG, "--- App Usage Statistics (Last 24 Hours) ---");
         List<UsageStats> usageStatsList = new ArrayList<>(sortedMap.values());
 
         // Sort apps by usage time in foreground
@@ -173,55 +169,87 @@ public class MainActivity extends AppCompatActivity {
         for (UsageStats usageStats : usageStatsList) {
             try {
                 String packageName = usageStats.getPackageName();
-                long currentUsageTime = usageStats.getTotalTimeInForeground();
-
-                // Retrieve the previous saved usage data from SharedPreferences
-                long previousUsageTime = getSavedUsageData(packageName);
-
-                // Calculate the difference in usage time (increase or decrease)
-                long usageTimeDifference = currentUsageTime - previousUsageTime;
-
-                // Save the new usage time to SharedPreferences
-                saveUsageData(packageName, currentUsageTime);
+                long usageTimeMillis = usageStats.getTotalTimeInForeground();
+                String usageDuration = getDurationBreakdown(usageTimeMillis);
+                int usagePercentage = (int) (usageTimeMillis * 100 / totalTime);
 
                 String appName = packageName.split("\\.")[packageName.split("\\.").length - 1];
-
-                // Set the default icon if the app info is unavailable
-                Drawable icon = getDrawable(R.drawable.no_image); // Default icon
-
                 try {
                     ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName, 0);
-                    icon = getPackageManager().getApplicationIcon(ai); // Get actual app icon
+                    appName = getPackageManager().getApplicationLabel(ai).toString();
                 } catch (PackageManager.NameNotFoundException e) {
-                    Log.e("IconError", "Icon for package " + packageName + " not found.");
-                    Log.d("IconDebug", "Trying to fetch icon for " + packageName);
+                    // Keep the package name if app label is not found
                 }
 
-                if (isAppInfoAvailable(usageStats)) {
-                    ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName, 0);
-                    icon = getPackageManager().getApplicationIcon(ai);  // Get app icon
-                    appName = getPackageManager().getApplicationLabel(ai).toString();  // Get app name
+                Log.i(TAG, "App: " + appName +
+                        ", Package: " + packageName +
+                        ", Usage Time: " + usageDuration +
+                        ", Percentage: " + usagePercentage + "%");
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error processing usage stats for an app", e);
+            }
+        }
+        Log.i(TAG, "-------------------------------------------");
+        Toast.makeText(this, "Usage data logged to Logcat", Toast.LENGTH_SHORT).show();
+    }
+
+    // Display the apps usage stats in the ListView
+    public void showAppsUsage(Map<String, UsageStats> sortedMap) {
+        ArrayList<App> apps = new ArrayList<>();
+        List<UsageStats> usageStatsList = new ArrayList<>(sortedMap.values());
+
+        Collections.sort(usageStatsList, (z1, z2) -> Long.compare(z2.getTotalTimeInForeground(), z1.getTotalTimeInForeground()));
+
+        long totalTime = usageStatsList.stream().mapToLong(UsageStats::getTotalTimeInForeground).sum();
+
+        for (UsageStats usageStats : usageStatsList) {
+            String packageName = usageStats.getPackageName();
+            String appName = packageName; // Default to package name
+            Drawable icon = getDrawable(R.drawable.no_image); // Default icon
+
+            long usageTimeMillis = usageStats.getTotalTimeInForeground();
+
+            try {
+                ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName, 0);
+                try {
+                    CharSequence label = getPackageManager().getApplicationLabel(ai);
+                    if (label != null) {
+                        appName = label.toString();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error getting label for " + packageName, e);
                 }
 
-                String usageDuration = getDurationBreakdown(currentUsageTime);
-                int usagePercentage = (int) (currentUsageTime * 100 / totalTime);
+                try {
+                    icon = getPackageManager().getApplicationIcon(ai);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error getting icon for " + packageName, e);
+                }
 
-                // Skip apps with zero usage time
-                if (usagePercentage > 0) {
-                    // Create App object with the usage data
+                String usageDuration = getDurationBreakdown(usageTimeMillis);
+                // Calculate percentage based on total time, avoid division by zero
+                int usagePercentage = (totalTime > 0) ? (int) (usageTimeMillis * 100 / totalTime) : 0;
+
+                // Include apps with any non-zero usage time
+                if (usageTimeMillis > 0) {
                     App app = new App(icon, appName, usagePercentage, usageDuration);
                     apps.add(app);
                 }
 
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                Log.e(TAG, "App info not found for package: " + packageName, e);
+                String usageDuration = getDurationBreakdown(usageTimeMillis);
+                int usagePercentage = (totalTime > 0) ? (int) (usageTimeMillis * 100 / totalTime) : 0;
+                if (usageTimeMillis > 0) {
+                    App app = new App(icon, appName, usagePercentage, usageDuration);
+                    apps.add(app);
+                }
             }
         }
 
-        // Populate ListView with app data
         AppsAdapter adapter = new AppsAdapter(this, apps);
         appsList.setAdapter(adapter);
-
         showHideItemsWhenShowApps();
     }
 

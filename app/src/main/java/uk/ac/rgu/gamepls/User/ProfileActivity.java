@@ -209,8 +209,18 @@ public class ProfileActivity extends AppCompatActivity {
         long endTime = System.currentTimeMillis();
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        Calendar usageCalendar = Calendar.getInstance();
+
         for (UsageStats usageStats : appList) {
-            totalTimeToday += usageStats.getTotalTimeInForeground();
+            usageCalendar.setTimeInMillis(usageStats.getLastTimeUsed());
+            Calendar todayCalendar = Calendar.getInstance();
+
+            if (usageCalendar.get(Calendar.YEAR) == todayCalendar.get(Calendar.YEAR) &&
+                    usageCalendar.get(Calendar.MONTH) == todayCalendar.get(Calendar.MONTH) &&
+                    usageCalendar.get(Calendar.DAY_OF_MONTH) == todayCalendar.get(Calendar.DAY_OF_MONTH)) {
+                totalTimeToday += usageStats.getTotalTimeInForeground();
+            }
         }
 
         // Convert total time in milliseconds to hours

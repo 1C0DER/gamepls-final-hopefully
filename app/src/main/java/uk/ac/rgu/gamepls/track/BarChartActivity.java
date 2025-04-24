@@ -17,6 +17,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import uk.ac.rgu.gamepls.MainActivity;
 import uk.ac.rgu.gamepls.R;
 
@@ -31,7 +32,7 @@ public class BarChartActivity extends AppCompatActivity {
 
         barChart = findViewById(R.id.barChart);  // Initialize BarChart
 
-        // You would call your method to load data and update the chart
+        // Load data and update the chart
         loadStatistics();
     }
 
@@ -40,7 +41,7 @@ public class BarChartActivity extends AppCompatActivity {
         // Create an Intent to navigate back to MainActivity
         Intent intent = new Intent(BarChartActivity.this, MainActivity.class);
         startActivity(intent); // Start the MainActivity
-        finish(); // Optionally finish the current activity if you want to remove it from the back stack
+        finish(); // Optionally finish the current activity
     }
 
     // Method to load the statistics for the past 7 days and update the BarChart
@@ -48,43 +49,45 @@ public class BarChartActivity extends AppCompatActivity {
         UsageStatsManager usm = (UsageStatsManager) this.getSystemService(USAGE_STATS_SERVICE);
 
         // Get the current date
-        Calendar calendar = Calendar.getInstance();
         long endTime = System.currentTimeMillis();
-        calendar.add(Calendar.DAY_OF_YEAR, -6);  // Start from 7 days ago
-        long startTime = calendar.getTimeInMillis();
+        long startTime = endTime - TimeUnit.DAYS.toMillis(7); // Go back 7 full days
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
 
-        // Create a list to hold the daily total usage time for 7 days
-        long[] dailyUsage = new long[7];  // Array to store total usage for each of the 7 days
+        // Create a list to hold the daily total usage time for the last 7 days
+        long[] dailyUsage = new long[7];
 
-        // Fill dailyUsage with the total time used for each day
+        // Calendar instance to help with day comparison
+        Calendar calendar = Calendar.getInstance();
+        Calendar usageCalendar = Calendar.getInstance();
+
+        // Iterate through the usage stats and aggregate by day
         for (UsageStats usageStats : appList) {
-            int dayOfWeek = getDayOfWeek(usageStats.getLastTimeUsed());
-            long totalTime = usageStats.getTotalTimeInForeground();
-            dailyUsage[dayOfWeek] += totalTime;  // Update the respective day with the usage time
+            usageCalendar.setTimeInMillis(usageStats.getLastTimeUsed());
+
+            // Iterate through the 7 days we are tracking
+            for (int i = 0; i < 7; i++) {
+                calendar.setTimeInMillis(endTime - TimeUnit.DAYS.toMillis(6 - i)); // Get the timestamp for each of the last 7 days
+
+                // Check if the usage occurred on the current day being examined
+                if (usageCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
+                        usageCalendar.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
+                        usageCalendar.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH)) {
+                    dailyUsage[i] += usageStats.getTotalTimeInForeground();
+                    break; // Move to the next usage stat
+                }
+            }
         }
 
         // Update the BarChart with the new data
         updateBarChart(dailyUsage);
     }
 
-    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
-    // Assuming today is Wednesday, and we want to show the last 7 days
+    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday) - NOT USED NOW
     public int getDayOfWeek(long timeInMillis) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMillis);
-
-        // Adjust so that today is 0 (Wednesday), and days go backward from there
-        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;  // Adjust for Sunday = 0, Monday = 1, etc.
-
-        // If it's Wednesday, ensure the index starts from 0
-        // The logic below ensures correct alignment for the 7 days
-        if (dayOfWeek == 0) {
-            return 6;  // If it's Sunday (0), we make it the last day of the week
-        } else {
-            return dayOfWeek - 1;  // Shift all the days back by 1
-        }
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1; // Adjust for 0-based indexing (Sunday = 0)
     }
 
     // Update the BarChart with the data for 7 days
@@ -96,21 +99,21 @@ public class BarChartActivity extends AppCompatActivity {
 
         ArrayList<BarEntry> barEntries = new ArrayList<>();
 
-        // Prepare the data for each day of the week (Sunday to Saturday)
+        // Prepare the data for each of the last 7 days
         for (int i = 0; i < 7; i++) {
             float usageInHours = dailyUsage[i] / (3600000f);  // Convert milliseconds to hours
-            usageInHours = Math.min(usageInHours, 24f);  // Cap usage at 24 hours
+            usageInHours = Math.min(usageInHours, 24f);      // Cap usage at 24 hours
             barEntries.add(new BarEntry(i, usageInHours));
         }
 
         // Axis Configuration
-        barChart.getAxisLeft().setAxisMinimum(0f);  // Set minimum value of Y-Axis to 0 (Start of the day)
+        barChart.getAxisLeft().setAxisMinimum(0f);  // Set minimum value of Y-Axis to 0
         barChart.getAxisLeft().setAxisMaximum(24f);  // Maximum value is 24 hours
-        barChart.getAxisRight().setEnabled(false);  // Optionally, disable the right Y-Axis if unnecessary
+        barChart.getAxisRight().setEnabled(false);  // Disable the right Y-Axis
 
         // Set Description (Optional)
         Description description = new Description();
-        description.setText("Usage in Hours per Day");
+        description.setText("Usage in Hours per Day (Last 7 Days)");
         barChart.setDescription(description);
 
         // Set Legend
@@ -121,12 +124,44 @@ public class BarChartActivity extends AppCompatActivity {
         legend.setTextSize(12f);
 
         // X-Axis Formatter: Display Days of the Week
-        String[] daysOfWeek = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        final String[] daysOfWeek = new String[7];
+        Calendar calendar = Calendar.getInstance();
+        for (int i = 0; i < 7; i++) {
+            calendar.setTimeInMillis(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(6 - i));
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            switch (dayOfWeek) {
+                case Calendar.SUNDAY:
+                    daysOfWeek[i] = "Sun";
+                    break;
+                case Calendar.MONDAY:
+                    daysOfWeek[i] = "Mon";
+                    break;
+                case Calendar.TUESDAY:
+                    daysOfWeek[i] = "Tue";
+                    break;
+                case Calendar.WEDNESDAY:
+                    daysOfWeek[i] = "Wed";
+                    break;
+                case Calendar.THURSDAY:
+                    daysOfWeek[i] = "Thu";
+                    break;
+                case Calendar.FRIDAY:
+                    daysOfWeek[i] = "Fri";
+                    break;
+                case Calendar.SATURDAY:
+                    daysOfWeek[i] = "Sat";
+                    break;
+            }
+        }
+
         barChart.getXAxis().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
-                int index = (int) value;  // Explicit cast from float to int
-                return daysOfWeek[index % daysOfWeek.length];  // Wrap around the index if it exceeds the days of the week
+                int index = (int) value;
+                if (index >= 0 && index < daysOfWeek.length) {
+                    return daysOfWeek[index];
+                }
+                return "";
             }
         });
 
@@ -134,14 +169,13 @@ public class BarChartActivity extends AppCompatActivity {
         barChart.getAxisLeft().setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
-                int hours = (int) value;  // Cast float to int
-                return hours + " h";  // Return as string (e.g., "3 h")
+                return (int) value + " h";
             }
         });
 
         // Create a dataset for the bar chart
         BarDataSet barDataSet = new BarDataSet(barEntries, "App Usage");
-        barDataSet.setColors(colors);  // Assign the different colors to the bars
+        barDataSet.setColors(colors);
         barDataSet.setValueTextSize(14f);
         barDataSet.setValueTextColor(Color.BLACK);
 

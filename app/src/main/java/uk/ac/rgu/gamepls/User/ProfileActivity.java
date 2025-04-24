@@ -30,7 +30,9 @@ import uk.ac.rgu.gamepls.R;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -174,9 +176,9 @@ public class ProfileActivity extends AppCompatActivity {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
         long totalTime = 0;
 
-        // Get the current date
+        // Get usage stats for the last year (you can adjust the duration as needed)
         long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24 * 7;  // Past 7 days
+        long startTime = endTime - TimeUnit.DAYS.toMillis(365); // Approximately one year
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
 
@@ -197,9 +199,14 @@ public class ProfileActivity extends AppCompatActivity {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
         long totalTimeToday = 0;
 
-        // Get the current date
+        // Get the start of today (midnight) in milliseconds
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startTime = calendar.getTimeInMillis();
         long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24;  // Current day (from midnight)
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
         for (UsageStats usageStats : appList) {
@@ -214,7 +221,7 @@ public class ProfileActivity extends AppCompatActivity {
         int gamingLimit = sharedPreferences.getInt("gamingLimit", 0);  // Default is 0 if not set
 
         // If "Today's hours" have reached or exceeded the gaming limit, send a notification
-        if (totalHoursToday >= gamingLimit) {
+        if (totalHoursToday >= gamingLimit && gamingLimit > 0) { // Only send if a limit is set (> 0)
             sendNotification(ProfileActivity.this);
         }
 

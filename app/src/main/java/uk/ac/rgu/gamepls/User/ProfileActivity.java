@@ -4,11 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,11 +28,16 @@ import android.app.usage.UsageStatsManager;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.content.SharedPreferences;
+
 public class ProfileActivity extends AppCompatActivity {
 
-    TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum, dayHoursNum;
+    TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum, dayHoursNum, selectedLimit;
     Button editProfile;
     ImageButton backArrow;
+    SeekBar limitSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +49,10 @@ public class ProfileActivity extends AppCompatActivity {
         profileEmail = findViewById(R.id.profileEmail);
         profileUsername = findViewById(R.id.profileUsername);
         profilePassword = findViewById(R.id.profilePassword);
-        totalHoursNum = findViewById(R.id.totalHoursNum);  // TextView to display total hours for all time
-        dayHoursNum = findViewById(R.id.dayHoursNum);  // TextView to display today's hours
+        totalHoursNum = findViewById(R.id.totalHoursNum);
+        dayHoursNum = findViewById(R.id.dayHoursNum);
+        selectedLimit = findViewById(R.id.selected_limit);  // TextView to display the selected limit
+        limitSeekBar = findViewById(R.id.limit_seekbar);  // SeekBar to set the limit
         backArrow = findViewById(R.id.backArrow);
         editProfile = findViewById(R.id.editButton);
 
@@ -51,27 +60,36 @@ public class ProfileActivity extends AppCompatActivity {
         showAllUserData();
 
         // Set the click listener for the edit profile button
-        editProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passUserData();
-            }
-        });
+        editProfile.setOnClickListener(v -> passUserData());
 
         // Set the click listener for the back arrow
-        backArrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
+        backArrow.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+            startActivity(intent);
         });
 
-        // Calculate and display the total usage time for all time
-        calculateTotalUsageTime();
+        // Initialize SeekBar progress from SharedPreferences
+        loadSelectedLimit();
 
-        // Calculate and display the total usage time for today
-        calculateTodayUsageTime();
+        // Listen for changes in the SeekBar
+        limitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // Update the selected limit TextView
+                selectedLimit.setText("Selected Limit: " + progress + " hours");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Optionally handle the event when the user starts touching the SeekBar
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Save the selected limit to SharedPreferences when the user stops interacting with the SeekBar
+                saveSelectedLimit(seekBar.getProgress());
+            }
+        });
     }
 
     // Fetch user data from Firebase and display it
@@ -103,79 +121,40 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle database error
                 Log.e("FirebaseError", "Error retrieving user data: " + error.getMessage());
             }
         });
     }
 
-    // Calculate the total time spent on apps and update the TextView
-// Inside ProfileActivity.java
-
-    // Method to calculate the total time spent on apps (all-time)
-    private void calculateTotalUsageTime() {
-        UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
-        long totalTime = 0;
-
-        // Get the current date
-        long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24 * 7;  // Last 7 days
-
-        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
-
-        // Sum up the usage time for each app
-        for (UsageStats usageStats : appList) {
-            totalTime += usageStats.getTotalTimeInForeground();
-        }
-
-        // Convert total time in milliseconds to hours
-        float totalHours = totalTime / 3600000f;  // Convert from milliseconds to hours
-
-        // Update the total hours TextView
-        totalHoursNum.setText(String.format("%.2f", totalHours));  // Set to 2 decimal places
+    // Save the selected limit to SharedPreferences
+    private void saveSelectedLimit(int limit) {
+        SharedPreferences sharedPreferences = getSharedPreferences("userData", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("gamingLimit", limit);  // Save the selected limit (in hours)
+        editor.apply();
     }
 
-    // Method to calculate the total time spent on apps today
-    private void calculateTodayUsageTime() {
-        UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
-        long totalTimeToday = 0;
-
-        // Get the current date
-        long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24;  // Start of today (last 24 hours)
-
-        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
-
-        // Sum up the usage time for each app
-        for (UsageStats usageStats : appList) {
-            totalTimeToday += usageStats.getTotalTimeInForeground();
-        }
-
-        // Convert total time in milliseconds to hours
-        float totalHoursToday = totalTimeToday / 3600000f;
-
-        // Update the today's hours TextView
-        dayHoursNum.setText(String.format("%.2f", totalHoursToday));  // Set to 2 decimal places
+    // Load the selected limit from SharedPreferences
+    private void loadSelectedLimit() {
+        SharedPreferences sharedPreferences = getSharedPreferences("userData", MODE_PRIVATE);
+        int savedLimit = sharedPreferences.getInt("gamingLimit", 0);  // Default is 0 if not set
+        limitSeekBar.setProgress(savedLimit);  // Set the SeekBar to the saved progress
+        selectedLimit.setText("Selected Limit: " + savedLimit + " hours");  // Update the TextView
     }
 
     // Pass the user data to the ProfileEditActivity
     public void passUserData() {
-        // Get the user data from the TextViews
         String userName = profileName.getText().toString();
         String userEmail = profileEmail.getText().toString();
         String userUsername = profileUsername.getText().toString();
         String userPassword = profilePassword.getText().toString();
 
-        // Create an Intent to navigate to the ProfileEditActivity
         Intent intent = new Intent(ProfileActivity.this, ProfileEditActivity.class);
-
-        // Put the user data in the Intent
         intent.putExtra("name", userName);
         intent.putExtra("email", userEmail);
         intent.putExtra("username", userUsername);
         intent.putExtra("password", userPassword);
-
-        // Start the ProfileEditActivity
         startActivity(intent);
     }
 }
+

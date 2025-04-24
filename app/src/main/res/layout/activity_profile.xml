@@ -160,6 +160,61 @@
 
     </LinearLayout>
 
+    <!-- SeekBar to set the time limit -->
+
+    <TextView
+        android:id="@+id/setting_limit_title"
+        android:layout_width="222dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="Set Your Gaming Limit"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/LinearLayout" />
+
+    <!-- Apply Button -->
+
+    <SeekBar
+        android:id="@+id/limit_seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="24"
+        android:progress="0"
+        android:thumb="@drawable/profile_circle"
+        app:layout_constraintBottom_toTopOf="@id/selected_limit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/setting_limit_title" />
+
+    <TextView
+        android:id="@+id/selected_limit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:text="Selected Limit: 0 hours"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/set_limit_button"
+        app:layout_constraintEnd_toEndOf="@+id/set_limit_button"
+        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/set_limit_button"
+        android:layout_width="253dp"
+        android:layout_height="47dp"
+        android:layout_marginBottom="20dp"
+        android:background="@color/navy_blue"
+        android:padding="12dp"
+        android:text="Apply Limit"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/editButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:id="@+id/editButton"
         android:layout_width="368dp"

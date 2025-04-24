@@ -180,13 +180,14 @@
 
     <SeekBar
         android:id="@+id/limit_seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="330dp"
+        android:layout_height="55dp"
         android:max="24"
         android:progress="0"
         android:thumb="@drawable/profile_circle"
         app:layout_constraintBottom_toTopOf="@id/selected_limit"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/setting_limit_title" />
 
     <TextView

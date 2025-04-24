@@ -28,10 +28,6 @@ import android.app.usage.UsageStatsManager;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.content.SharedPreferences;
-
 public class ProfileActivity extends AppCompatActivity {
 
     TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum, dayHoursNum, selectedLimit;
@@ -90,6 +86,12 @@ public class ProfileActivity extends AppCompatActivity {
                 saveSelectedLimit(seekBar.getProgress());
             }
         });
+
+        // Calculate and display the total usage time for all time
+        calculateTotalUsageTime();
+
+        // Calculate and display the total usage time for today
+        calculateTodayUsageTime();
     }
 
     // Fetch user data from Firebase and display it
@@ -126,6 +128,52 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    // Calculate the total time spent on apps and update the TextView
+    private void calculateTotalUsageTime() {
+        UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
+        long totalTime = 0;
+
+        // Get the current date
+        long endTime = System.currentTimeMillis();
+        long startTime = endTime - 1000 * 3600 * 24 * 7;  // Past 7 days
+
+        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        // Sum up the usage time for each app
+        for (UsageStats usageStats : appList) {
+            totalTime += usageStats.getTotalTimeInForeground();
+        }
+
+        // Convert total time in milliseconds to hours
+        float totalHours = totalTime / 3600000f;
+
+        // Update the total hours TextView
+        totalHoursNum.setText(String.format("%.2f", totalHours));  // Set to 2 decimal places
+    }
+
+    // Calculate the total time spent on apps today and update the TextView
+    private void calculateTodayUsageTime() {
+        UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
+        long totalTimeToday = 0;
+
+        // Get the current date
+        long endTime = System.currentTimeMillis();
+        long startTime = endTime - 1000 * 3600 * 24;  // Current day
+
+        List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        // Sum up the usage time for each app
+        for (UsageStats usageStats : appList) {
+            totalTimeToday += usageStats.getTotalTimeInForeground();
+        }
+
+        // Convert total time in milliseconds to hours
+        float totalHoursToday = totalTimeToday / 3600000f;
+
+        // Update the today's hours TextView
+        dayHoursNum.setText(String.format("%.2f", totalHoursToday));  // Set to 2 decimal places
+    }
+
     // Save the selected limit to SharedPreferences
     private void saveSelectedLimit(int limit) {
         SharedPreferences sharedPreferences = getSharedPreferences("userData", MODE_PRIVATE);
@@ -157,4 +205,3 @@ public class ProfileActivity extends AppCompatActivity {
         startActivity(intent);
     }
 }
-

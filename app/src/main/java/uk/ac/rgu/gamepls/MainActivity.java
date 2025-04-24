@@ -128,11 +128,13 @@ public class MainActivity extends AppCompatActivity {
         return (mode == MODE_ALLOWED);
     }
 
-    // Load the statistics of apps usage for the last 24 hours
+    // Load the statistics of apps usage for the last session or a longer period
     public void loadStatistics() {
         UsageStatsManager usm = (UsageStatsManager) this.getSystemService(USAGE_STATS_SERVICE);
+
+        // Query usage stats for the past 7 days (instead of just 24 hours)
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-                System.currentTimeMillis() - 1000 * 3600 * 24, System.currentTimeMillis());
+                System.currentTimeMillis() - 1000 * 3600 * 24 * 7, System.currentTimeMillis());
 
         appList = appList.stream().filter(app -> app.getTotalTimeInForeground() > 0).collect(Collectors.toList());
 
@@ -143,6 +145,19 @@ public class MainActivity extends AppCompatActivity {
             }
             showAppsUsage(sortedMap);
         }
+    }
+
+    // Store usage data in SharedPreferences
+    public void saveUsageData(String packageName, long totalTimeInForeground) {
+        SharedPreferences sharedPreferences = getSharedPreferences("usageData", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(packageName, totalTimeInForeground);
+        editor.apply();
+    }
+
+    public long getSavedUsageData(String packageName) {
+        SharedPreferences sharedPreferences = getSharedPreferences("usageData", MODE_PRIVATE);
+        return sharedPreferences.getLong(packageName, 0);  // Default to 0 if not found
     }
 
     // Display the apps usage stats
@@ -158,6 +173,17 @@ public class MainActivity extends AppCompatActivity {
         for (UsageStats usageStats : usageStatsList) {
             try {
                 String packageName = usageStats.getPackageName();
+                long currentUsageTime = usageStats.getTotalTimeInForeground();
+
+                // Retrieve the previous saved usage data from SharedPreferences
+                long previousUsageTime = getSavedUsageData(packageName);
+
+                // Calculate the difference in usage time (increase or decrease)
+                long usageTimeDifference = currentUsageTime - previousUsageTime;
+
+                // Save the new usage time to SharedPreferences
+                saveUsageData(packageName, currentUsageTime);
+
                 String appName = packageName.split("\\.")[packageName.split("\\.").length - 1];
 
                 // Set the default icon if the app info is unavailable
@@ -171,15 +197,14 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("IconDebug", "Trying to fetch icon for " + packageName);
                 }
 
-                // If app info is available, get the actual icon
                 if (isAppInfoAvailable(usageStats)) {
                     ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName, 0);
                     icon = getPackageManager().getApplicationIcon(ai);  // Get app icon
                     appName = getPackageManager().getApplicationLabel(ai).toString();  // Get app name
                 }
 
-                String usageDuration = getDurationBreakdown(usageStats.getTotalTimeInForeground());
-                int usagePercentage = (int) (usageStats.getTotalTimeInForeground() * 100 / totalTime);
+                String usageDuration = getDurationBreakdown(currentUsageTime);
+                int usagePercentage = (int) (currentUsageTime * 100 / totalTime);
 
                 // Skip apps with zero usage time
                 if (usagePercentage > 0) {

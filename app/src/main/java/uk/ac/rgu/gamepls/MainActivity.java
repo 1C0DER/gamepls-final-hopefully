@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     TextView permissionDescriptionTv, usageTv;
     ListView appsList;
 
+    private ArrayList<App> apps = new ArrayList<>();
+    private AppsAdapter appAdapter;
+
     private static final String TAG = "AppUsageTracker";
 
     @Override
@@ -57,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
         permissionDescriptionTv = findViewById(R.id.permission_description_tv);
         usageTv = findViewById(R.id.usage_tv);
         appsList = findViewById(R.id.apps_list);
+
+        // Initialize the AppsAdapter and set it on the ListView
+        appAdapter = new AppsAdapter(this, apps);
+        appsList.setAdapter(appAdapter);
 
         // On show button click, load the statistics, log them, and update the UI
         showBtn.setOnClickListener(new View.OnClickListener() {
@@ -132,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Load the statistics of apps usage for the last 24 hours, log them, and update the UI
+// Load the statistics of apps usage for the last 24 hours, log them, and update the UI
     public void loadStatisticsAndDisplay() {
         UsageStatsManager usm = (UsageStatsManager) this.getSystemService(USAGE_STATS_SERVICE);
 
@@ -147,12 +156,23 @@ public class MainActivity extends AppCompatActivity {
                 sortedMap.put(usageStats.getPackageName(), usageStats);
             }
             logAppsUsage(sortedMap);
-            showAppsUsage(sortedMap);
+
+            // Convert the sorted map values to a List for sorting
+            List<UsageStats> usageStatsList = new ArrayList<>(sortedMap.values());
+
+            // Sort apps by usage time in foreground (descending order)
+            Collections.sort(usageStatsList, (z1, z2) -> Long.compare(z2.getTotalTimeInForeground(), z1.getTotalTimeInForeground()));
+
+            long totalTime = usageStatsList.stream().mapToLong(UsageStats::getTotalTimeInForeground).sum();
+
+            showAppsUsage(usageStatsList, totalTime); // Pass the sorted list
+            showHideItemsWhenShowApps(); // Call this after showing the apps
         } else {
             Log.i(TAG, "No app usage data found for the last 24 hours.");
             // Optionally clear the list view if there's no data
             AppsAdapter adapter = new AppsAdapter(this, new ArrayList<>());
             appsList.setAdapter(adapter);
+            showHideWithPermission(); // Revert UI if no data
         }
     }
 
@@ -195,20 +215,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Display the apps usage stats in the ListView
-    public void showAppsUsage(Map<String, UsageStats> sortedMap) {
-        ArrayList<App> apps = new ArrayList<>();
-        List<UsageStats> usageStatsList = new ArrayList<>(sortedMap.values());
-
-        Collections.sort(usageStatsList, (z1, z2) -> Long.compare(z2.getTotalTimeInForeground(), z1.getTotalTimeInForeground()));
-
-        long totalTime = usageStatsList.stream().mapToLong(UsageStats::getTotalTimeInForeground).sum();
-
+    private void showAppsUsage(List<UsageStats> usageStatsList, long totalTime) {
+        apps.clear();
         for (UsageStats usageStats : usageStatsList) {
             String packageName = usageStats.getPackageName();
-            String appName = packageName; // Default to package name
-            Drawable icon = getDrawable(R.drawable.no_image); // Default icon
-
             long usageTimeMillis = usageStats.getTotalTimeInForeground();
+            Drawable icon = ContextCompat.getDrawable(this, R.drawable.no_image);
+            String appName = packageName; // Default to package name
 
             try {
                 ApplicationInfo ai = getPackageManager().getApplicationInfo(packageName, 0);
@@ -227,14 +240,28 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, "Error getting icon for " + packageName, e);
                 }
 
-                String usageDuration = getDurationBreakdown(usageTimeMillis);
-                // Calculate percentage based on total time, avoid division by zero
-                int usagePercentage = (totalTime > 0) ? (int) (usageTimeMillis * 100 / totalTime) : 0;
+                // Check if the app name is still the package name
+                if (appName.equals(packageName)) {
+                    // Try to remove "com." prefix if it exists
+                    if (packageName.startsWith("com.")) {
+                        appName = packageName.substring(4); // Remove the first 4 characters ("com.")
+                        // Optionally capitalize the first letter after removing "com."
+                        if (appName.length() > 0) {
+                            appName = appName.substring(0, 1).toUpperCase() + appName.substring(1);
+                        }
+                    } else {
+                        // If it doesn't start with "com.", just try to capitalize the first letter
+                        if (appName.length() > 0) {
+                            appName = appName.substring(0, 1).toUpperCase() + appName.substring(1);
+                        }
+                    }
+                }
 
-                // Include apps with any non-zero usage time
+                String usageDuration = getDurationBreakdown(usageTimeMillis);
+                int usagePercentage = (totalTime > 0) ? (int) (usageTimeMillis * 100 / totalTime) : 0;
                 if (usageTimeMillis > 0) {
-                    App app = new App(icon, appName, usagePercentage, usageDuration);
-                    apps.add(app);
+                    App currentApp = new App(icon, appName, usagePercentage, usageDuration);
+                    apps.add(currentApp);
                 }
 
             } catch (PackageManager.NameNotFoundException e) {
@@ -242,15 +269,24 @@ public class MainActivity extends AppCompatActivity {
                 String usageDuration = getDurationBreakdown(usageTimeMillis);
                 int usagePercentage = (totalTime > 0) ? (int) (usageTimeMillis * 100 / totalTime) : 0;
                 if (usageTimeMillis > 0) {
-                    App app = new App(icon, appName, usagePercentage, usageDuration);
-                    apps.add(app);
+                    String simpleName = packageName;
+                    // Try to remove "com." prefix for uninstalled apps as well
+                    if (packageName.startsWith("com.")) {
+                        simpleName = packageName.substring(4);
+                        if (simpleName.length() > 0) {
+                            simpleName = simpleName.substring(0, 1).toUpperCase() + simpleName.substring(1);
+                        }
+                    } else {
+                        if (simpleName.length() > 0) {
+                            simpleName = simpleName.substring(0, 1).toUpperCase() + simpleName.substring(1);
+                        }
+                    }
+                    App currentApp = new App(icon, simpleName, usagePercentage, usageDuration); // Removed "(Possibly Uninstalled)"
+                    apps.add(currentApp);
                 }
             }
         }
-
-        AppsAdapter adapter = new AppsAdapter(this, apps);
-        appsList.setAdapter(adapter);
-        showHideItemsWhenShowApps();
+        appAdapter.notifyDataSetChanged();
     }
 
     // Helper methods for hiding/showing UI elements

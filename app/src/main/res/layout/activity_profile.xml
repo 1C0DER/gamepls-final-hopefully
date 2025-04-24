@@ -214,7 +214,8 @@
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/editButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="applyLimitButtonClicked"/>
 
     <Button
         android:id="@+id/editButton"

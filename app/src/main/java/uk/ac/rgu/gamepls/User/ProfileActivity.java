@@ -3,8 +3,13 @@ package uk.ac.rgu.gamepls.User;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,12 +31,11 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ProfileActivity extends AppCompatActivity {
 
     TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum, dayHoursNum, selectedLimit;
-    Button editProfile;
+    Button editProfile, applyLimitButton;  // Add applyLimitButton
     ImageButton backArrow;
     SeekBar limitSeekBar;
 
@@ -51,6 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
         limitSeekBar = findViewById(R.id.limit_seekbar);  // SeekBar to set the limit
         backArrow = findViewById(R.id.backArrow);
         editProfile = findViewById(R.id.editButton);
+        applyLimitButton = findViewById(R.id.set_limit_button);  // Initialize the apply limit button
 
         // Show user data when the activity is created
         showAllUserData();
@@ -87,11 +92,47 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        // Set an OnClickListener for the "Apply Limit" button
+        applyLimitButton.setOnClickListener(v -> {
+            // When the user clicks "Apply Limit", recalculate the today's usage time and check for notifications
+            int selectedLimitValue = limitSeekBar.getProgress();
+            saveSelectedLimit(selectedLimitValue);  // Save the selected limit
+            calculateTodayUsageTime();
+        });
+
         // Calculate and display the total usage time for all time
         calculateTotalUsageTime();
 
         // Calculate and display the total usage time for today
         calculateTodayUsageTime();
+    }
+
+    // Send a notification when the limit is reached
+    public void sendNotification(Context context) {
+        // Create notification channel for Android 8.0 (API level 26) and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Gaming Limit Channel";
+            String description = "Channel for Gaming Limit Notifications";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("gaming_limit_channel", name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        // Build the notification
+        Notification notification = new Notification.Builder(context, "gaming_limit_channel")
+                .setContentTitle("Gaming Limit Reached!")
+                .setContentText("You have reached your set gaming limit for today!")
+                .setSmallIcon(R.drawable.profile_circle) // Replace with your own icon
+                .setAutoCancel(true)
+                .build();
+
+        // Get NotificationManager and send the notification
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, notification);  // 1 is the notification ID
     }
 
     // Fetch user data from Firebase and display it
@@ -158,17 +199,24 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Get the current date
         long endTime = System.currentTimeMillis();
-        long startTime = endTime - 1000 * 3600 * 24;  // Current day
+        long startTime = endTime - 1000 * 3600 * 24;  // Current day (from midnight)
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
-
-        // Sum up the usage time for each app
         for (UsageStats usageStats : appList) {
             totalTimeToday += usageStats.getTotalTimeInForeground();
         }
 
         // Convert total time in milliseconds to hours
         float totalHoursToday = totalTimeToday / 3600000f;
+
+        // Get the user's set gaming limit from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("userData", MODE_PRIVATE);
+        int gamingLimit = sharedPreferences.getInt("gamingLimit", 0);  // Default is 0 if not set
+
+        // If "Today's hours" have reached or exceeded the gaming limit, send a notification
+        if (totalHoursToday >= gamingLimit) {
+            sendNotification(ProfileActivity.this);
+        }
 
         // Update the today's hours TextView
         dayHoursNum.setText(String.format("%.2f", totalHoursToday));  // Set to 2 decimal places

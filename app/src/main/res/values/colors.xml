@@ -4,7 +4,8 @@
     <color name="white">#FFFFFFFF</color>
 
     //Main color
-    <color name="flamingo">#f25a5a</color>
-    <color name="blue">#668cff</color>
+    <color name="flamingo">#2299CF</color>
+    <color name="blue">#f25a5a</color>
     <color name="navy_blue">#1E3A8A</color>
+    <color name="dim_overlay"></color>
 </resources>

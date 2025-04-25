@@ -76,27 +76,28 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Now that the user is created, save the additional data in Realtime Database
                             FirebaseUser firebaseUser = auth.getCurrentUser();
-                            String userId = firebaseUser.getUid(); // Get the user ID for storing user info
+                            if (firebaseUser != null) {
+                                String userId = firebaseUser.getUid(); // Get the user ID
 
-                            // Save user data to Firebase Realtime Database
-                            database = FirebaseDatabase.getInstance();
-                            reference = database.getReference("users");
+                                // Save user data to Firebase Realtime Database using the User ID as the key
+                                database = FirebaseDatabase.getInstance();
+                                reference = database.getReference("users");
 
-                            HelperClass helperClass = new HelperClass(name, email, username, pass);
-                            reference.child(email).setValue(helperClass).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(SignUpActivity.this, "You have signed up successfully", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                                        finish();
-                                    } else {
-                                        Toast.makeText(SignUpActivity.this, "Error saving user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                HelperClass helperClass = new HelperClass(name, email, username, pass);
+                                reference.child(userId).setValue(helperClass).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(SignUpActivity.this, "You have signed up successfully", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                            finish();
+                                        } else {
+                                            Toast.makeText(SignUpActivity.this, "Error saving user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         } else {
                             Toast.makeText(SignUpActivity.this, "SignUp Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }

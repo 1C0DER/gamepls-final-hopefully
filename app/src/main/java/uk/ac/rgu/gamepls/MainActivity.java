@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
             showHideItemsWhenShowApps(); // Call this after showing the apps
         } else {
             Log.i(TAG, "No app usage data found for the last 24 hours.");
-            // Optionally clear the list view if there's no data
+            // Clear the list view if there's no data
             AppsAdapter adapter = new AppsAdapter(this, new ArrayList<>());
             appsList.setAdapter(adapter);
             showHideWithPermission(); // Revert UI if no data

@@ -190,8 +190,11 @@ public class ProfileActivity extends AppCompatActivity {
         // Convert total time in milliseconds to hours
         float totalHours = totalTime / 3600000f;
 
+        // Round up the total hours to the nearest whole number
+        totalHours = (float) Math.ceil(totalHours);
+
         // Update the total hours TextView
-        totalHoursNum.setText(String.format("%.2f", totalHours));  // Set to 2 decimal places
+        totalHoursNum.setText(String.format("%.0f", totalHours));  // Set to 0 decimal places
     }
 
     // Calculate the total time spent on apps today and update the TextView
@@ -226,6 +229,9 @@ public class ProfileActivity extends AppCompatActivity {
         // Convert total time in milliseconds to hours
         float totalHoursToday = totalTimeToday / 3600000f;
 
+        // Round up the total hours to the nearest whole number
+        totalHoursToday = (float) Math.ceil(totalHoursToday);
+
         // Get the user's set gaming limit from SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("userData", MODE_PRIVATE);
         int gamingLimit = sharedPreferences.getInt("gamingLimit", 0);  // Default is 0 if not set
@@ -236,7 +242,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         // Update the today's hours TextView
-        dayHoursNum.setText(String.format("%.2f", totalHoursToday));  // Set to 2 decimal places
+        dayHoursNum.setText(String.format("%.0f", totalHoursToday));  // Set to 0 decimal places
     }
 
     // Save the selected limit to SharedPreferences

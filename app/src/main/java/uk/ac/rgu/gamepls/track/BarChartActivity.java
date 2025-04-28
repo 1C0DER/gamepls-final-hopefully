@@ -94,7 +94,13 @@ public class BarChartActivity extends AppCompatActivity {
     private void updateBarChart(long[] dailyUsage) {
 
         int[] colors = {
-                Color.GREEN, Color.YELLOW, Color.RED, Color.BLUE, Color.CYAN, Color.MAGENTA, Color.GRAY
+                Color.parseColor("#1E90FF"),  // Dodger Blue (light blue)
+                Color.parseColor("#4682B4"),  // Steel Blue (darker blue)
+                Color.parseColor("#5F9EA0"),  // Cadet Blue (teal-ish)
+                Color.parseColor("#ADD8E6"),  // Light Blue
+                Color.parseColor("#00BFFF"),  // Deep Sky Blue (vibrant)
+                Color.parseColor("#87CEEB"),  // Sky Blue
+                Color.parseColor("#B0C4DE")   // Light Steel Blue (faded blue)
         };
 
         ArrayList<BarEntry> barEntries = new ArrayList<>();

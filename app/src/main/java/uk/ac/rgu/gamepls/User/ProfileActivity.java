@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class ProfileActivity extends AppCompatActivity {
 
     TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum, dayHoursNum, selectedLimit;
-    Button editProfile, applyLimitButton;  // Add applyLimitButton
+    Button editProfile, applyLimitButton, logoutButton;  // Add applyLimitButton
     ImageButton backArrow;
     SeekBar limitSeekBar;
 
@@ -58,6 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
         backArrow = findViewById(R.id.backArrow);
         editProfile = findViewById(R.id.editButton);
         applyLimitButton = findViewById(R.id.set_limit_button);  // Initialize the apply limit button
+        logoutButton = findViewById(R.id.logout_button);
 
         // Show user data when the activity is created
         showAllUserData();
@@ -69,6 +70,21 @@ public class ProfileActivity extends AppCompatActivity {
         backArrow.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             startActivity(intent);
+        });
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Log out the user from Firebase
+                FirebaseAuth.getInstance().signOut();
+
+                // Redirect to the login screen after logging out
+                Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                startActivity(intent);
+
+                // Optionally, finish the current activity so the user can't go back to the profile screen
+                finish();
+            }
         });
 
         // Initialize SeekBar progress from SharedPreferences

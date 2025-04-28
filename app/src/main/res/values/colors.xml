@@ -5,6 +5,7 @@
 
     //Main color
     <color name="flamingo">#2299CF</color>
+    <color name="emo">#3F51B5</color>
     <color name="blue">#f25a5a</color>
     <color name="navy_blue">#1E3A8A</color>
     <color name="dim_overlay"></color>

@@ -12,33 +12,25 @@
         android:layout_centerInParent="true"
         android:src="@drawable/baseline_access_time_24" />
 
-    <!-- Optionally, you can add a loading bar here -->
-
+    <!-- Splash Text -->
     <TextView
-        android:layout_width="221dp"
-        android:layout_height="58dp"
-        android:layout_below="@+id/splash_logo"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="101dp"
-        android:layout_marginTop="13dp"
-        android:layout_marginEnd="89dp"
-        android:layout_marginBottom="215dp"
+        android:id="@+id/splash_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/splash_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
         android:text="TrackNPlay"
-        android:textColor="@color/navy_blue"
-        android:textSize="40dp" />
+        android:textColor="@color/flamingo"
+        android:textSize="40sp" /> <!-- Use 'sp' for text size to support different screen densities -->
 
+    <!-- Progress bar -->
     <ProgressBar
         android:id="@+id/splash_loading_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/splash_logo"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="183dp"
-        android:layout_marginTop="86dp"
-        android:layout_marginEnd="180dp"
-        android:layout_marginBottom="153dp" />
+        android:layout_below="@id/splash_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:indeterminate="true" />
 </RelativeLayout>

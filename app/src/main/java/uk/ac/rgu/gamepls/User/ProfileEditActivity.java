@@ -53,6 +53,14 @@ public class ProfileEditActivity extends AppCompatActivity {
 
                 if (isNameUpdated || isEmailUpdated || isUsernameUpdated || isPasswordUpdated) {
                     Toast.makeText(ProfileEditActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+
+                    // Log out the user after saving the changes
+                    auth.signOut();
+
+                    // Redirect the user to the login screen
+                    Intent loginIntent = new Intent(ProfileEditActivity.this, LoginActivity.class);
+                    loginIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // Clear the back stack
+                    startActivity(loginIntent);
                     finish();
                 } else {
                     Toast.makeText(ProfileEditActivity.this, "No Changes Found", Toast.LENGTH_SHORT).show();

@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class ProfileActivity extends AppCompatActivity {
 
     TextView profileName, profileEmail, profileUsername, profilePassword, totalHoursNum, dayHoursNum, selectedLimit;
-    Button editProfile, applyLimitButton, logoutButton;  // Add applyLimitButton
+    Button editProfile, applyLimitButton, logoutButton;
     ImageButton backArrow;
     SeekBar limitSeekBar;
 
@@ -53,11 +53,11 @@ public class ProfileActivity extends AppCompatActivity {
         profilePassword = findViewById(R.id.profilePassword);
         totalHoursNum = findViewById(R.id.totalHoursNum);
         dayHoursNum = findViewById(R.id.dayHoursNum);
-        selectedLimit = findViewById(R.id.selected_limit);  // TextView to display the selected limit
-        limitSeekBar = findViewById(R.id.limit_seekbar);  // SeekBar to set the limit
+        selectedLimit = findViewById(R.id.selected_limit);
+        limitSeekBar = findViewById(R.id.limit_seekbar);
         backArrow = findViewById(R.id.backArrow);
         editProfile = findViewById(R.id.editButton);
-        applyLimitButton = findViewById(R.id.set_limit_button);  // Initialize the apply limit button
+        applyLimitButton = findViewById(R.id.set_limit_button);
         logoutButton = findViewById(R.id.logout_button);
 
         // Show user data when the activity is created
@@ -66,7 +66,6 @@ public class ProfileActivity extends AppCompatActivity {
         // Set the click listener for the edit profile button
         editProfile.setOnClickListener(v -> passUserData());
 
-        // Set the click listener for the back arrow
         backArrow.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             startActivity(intent);
@@ -82,7 +81,6 @@ public class ProfileActivity extends AppCompatActivity {
                 Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                 startActivity(intent);
 
-                // Optionally, finish the current activity so the user can't go back to the profile screen
                 finish();
             }
         });
@@ -94,13 +92,13 @@ public class ProfileActivity extends AppCompatActivity {
         limitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Update the selected limit TextView
+                // Update the selected limit
                 selectedLimit.setText("Selected Limit: " + progress + " hours");
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // Optionally handle the event when the user starts touching the SeekBar
+                // handle the event when the user starts touching the SeekBar
             }
 
             @Override
@@ -127,7 +125,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     // Send a notification when the limit is reached
     public void sendNotification(Context context) {
-        // Create notification channel for Android 8.0 (API level 26) and above
+        // Create notification channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Gaming Limit Channel";
             String description = "Channel for Gaming Limit Notifications";
@@ -258,7 +256,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         // Update the today's hours TextView
-        dayHoursNum.setText(String.format("%.0f", totalHoursToday));  // Set to 0 decimal places
+        dayHoursNum.setText(String.format("%.0f", totalHoursToday));  // Set to 0 decimal places (to avoid confusion)
     }
 
     // Save the selected limit to SharedPreferences

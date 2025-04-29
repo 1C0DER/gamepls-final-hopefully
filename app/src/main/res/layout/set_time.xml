@@ -6,9 +6,6 @@
     android:padding="16dp"
     android:background="@color/blue">
 
-    <!-- Section Title -->
-
-    <!-- Description Text -->
     <TextView
         android:id="@+id/setting_limit_title"
         android:layout_width="359dp"
@@ -27,9 +24,6 @@
         android:textColor="@color/white"
         android:layout_marginBottom="16dp" />
 
-    <!-- SeekBar to set the time limit -->
-
-    <!-- Display the selected time -->
     <SeekBar
         android:id="@+id/limit_seekbar"
         android:layout_width="match_parent"
@@ -49,7 +43,6 @@
         android:textColor="#333333"
         android:layout_marginBottom="16dp" />
 
-    <!-- Apply Button -->
     <Button
         android:id="@+id/set_limit_button"
         android:layout_width="match_parent"

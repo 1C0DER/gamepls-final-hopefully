@@ -23,7 +23,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     String nameUser, emailUser, usernameUser, passwordUser;
     DatabaseReference reference;
     FirebaseAuth auth;
-    FirebaseUser user; // Add FirebaseUser
+    FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +32,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         // Initialize Firebase
         auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser(); // Initialize FirebaseUser
+        user = auth.getCurrentUser();
         reference = FirebaseDatabase.getInstance().getReference("users");
 
         editName = findViewById(R.id.editName);
@@ -107,7 +107,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                             Log.d("ProfileEdit", "User profile updated.");
                         } else {
                             Log.e("ProfileEdit", "Error updating user profile.", task.getException());
-                            // Handle the error appropriately, e.g., show a Toast to the user
+                            // Handle the error appropriately
                             Toast.makeText(ProfileEditActivity.this, "Failed to update username.", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -135,7 +135,6 @@ public class ProfileEditActivity extends AppCompatActivity {
     }
 
     public void showData() {
-        // Assuming data is passed through Intent
         Intent intent = getIntent();
         nameUser = intent.getStringExtra("name");
         emailUser = intent.getStringExtra("email");

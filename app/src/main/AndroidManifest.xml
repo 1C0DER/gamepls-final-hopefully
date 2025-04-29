@@ -37,7 +37,7 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|screenLayout|locale|layoutDirection"
             android:launchMode="singleTask"
             android:exported="true">
-            <!-- Make SplashActivity the launcher activity -->
+            <!-- Make the SplashActivity the launcher activity -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

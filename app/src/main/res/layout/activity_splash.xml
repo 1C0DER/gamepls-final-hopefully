@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/bluepat">
 
-    <!-- Splash logo or image -->
     <ImageView
         android:id="@+id/splash_logo"
         android:layout_width="176dp"
@@ -12,7 +11,6 @@
         android:layout_centerInParent="true"
         android:src="@drawable/baseline_access_time_24" />
 
-    <!-- Splash Text -->
     <TextView
         android:id="@+id/splash_text"
         android:layout_width="wrap_content"
@@ -22,9 +20,8 @@
         android:layout_marginTop="20dp"
         android:text="TrackNPlay"
         android:textColor="@color/flamingo"
-        android:textSize="40sp" /> <!-- Use 'sp' for text size to support different screen densities -->
+        android:textSize="40sp" />
 
-    <!-- Progress bar -->
     <ProgressBar
         android:id="@+id/splash_loading_bar"
         android:layout_width="wrap_content"

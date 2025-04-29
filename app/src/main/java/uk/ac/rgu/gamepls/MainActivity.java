@@ -99,11 +99,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Set onClickListener to navigate to BarChartActivity
         viewBarChartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start BarChartActivity when button is clicked
                 Intent intent = new Intent(MainActivity.this, BarChartActivity.class);
                 startActivity(intent);
             }
@@ -140,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Load the statistics of apps usage for the last 24 hours, log them, and update the UI
-// Load the statistics of apps usage for the last 24 hours, log them, and update the UI
     public void loadStatisticsAndDisplay() {
         UsageStatsManager usm = (UsageStatsManager) this.getSystemService(USAGE_STATS_SERVICE);
 
@@ -245,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     // Try to remove "com." prefix if it exists
                     if (packageName.startsWith("com.")) {
                         appName = packageName.substring(4); // Remove the first 4 characters ("com.")
-                        // Optionally capitalize the first letter after removing "com."
+                        // Capitalize the first letter after removing "com."
                         if (appName.length() > 0) {
                             appName = appName.substring(0, 1).toUpperCase() + appName.substring(1);
                         }
@@ -281,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
                             simpleName = simpleName.substring(0, 1).toUpperCase() + simpleName.substring(1);
                         }
                     }
-                    App currentApp = new App(icon, simpleName, usagePercentage, usageDuration); // Removed "(Possibly Uninstalled)"
+                    App currentApp = new App(icon, simpleName, usagePercentage, usageDuration);
                     apps.add(currentApp);
                 }
             }
@@ -333,13 +330,4 @@ public class MainActivity extends AppCompatActivity {
         return hours + " h " + minutes + " m " + seconds + " s";
     }
 
-    // Check if the app info exists
-    private boolean isAppInfoAvailable(UsageStats usageStats) {
-        try {
-            getPackageManager().getApplicationInfo(usageStats.getPackageName(), 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
 }

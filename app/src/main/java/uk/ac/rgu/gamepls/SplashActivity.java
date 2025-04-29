@@ -12,19 +12,17 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash); // Make sure you have a splash layout
+        setContentView(R.layout.activity_splash);
 
-        // Delay the transition to the LoginActivity
+        // Delay the transition
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 // Start LoginActivity after the delay
                 Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);
-
-                // Finish SplashActivity so it doesn't stay in the back stack
                 finish();
             }
-        }, 2000); // 2000 ms = 2 seconds delay, adjust this time as needed
+        }, 2000); // 2000 ms = 2 seconds delay
     }
 }

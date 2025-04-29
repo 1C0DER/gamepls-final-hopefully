@@ -36,12 +36,11 @@ public class BarChartActivity extends AppCompatActivity {
         loadStatistics();
     }
 
-    // This method will be called when the ImageButton is clicked
     public void onBackArrowClick(View view) {
-        // Create an Intent to navigate back to MainActivity
+        //navigate back to MainActivity
         Intent intent = new Intent(BarChartActivity.this, MainActivity.class);
         startActivity(intent); // Start the MainActivity
-        finish(); // Optionally finish the current activity
+        finish();
     }
 
     // Method to load the statistics for the past 7 days and update the BarChart
@@ -54,7 +53,7 @@ public class BarChartActivity extends AppCompatActivity {
 
         List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
 
-        // Create a list to hold the daily total usage time for the last 7 days
+        // List to hold the daily total usage time for the last 7 days
         long[] dailyUsage = new long[7];
 
         // Calendar instance to help with day comparison
@@ -69,25 +68,17 @@ public class BarChartActivity extends AppCompatActivity {
             for (int i = 0; i < 7; i++) {
                 calendar.setTimeInMillis(endTime - TimeUnit.DAYS.toMillis(6 - i)); // Get the timestamp for each of the last 7 days
 
-                // Check if the usage occurred on the current day being examined
                 if (usageCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) &&
                         usageCalendar.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
                         usageCalendar.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH)) {
                     dailyUsage[i] += usageStats.getTotalTimeInForeground();
-                    break; // Move to the next usage stat
+                    break;
                 }
             }
         }
 
         // Update the BarChart with the new data
         updateBarChart(dailyUsage);
-    }
-
-    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday) - NOT USED NOW
-    public int getDayOfWeek(long timeInMillis) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timeInMillis);
-        return calendar.get(Calendar.DAY_OF_WEEK) - 1; // Adjust for 0-based indexing (Sunday = 0)
     }
 
     // Update the BarChart with the data for 7 days
@@ -129,7 +120,7 @@ public class BarChartActivity extends AppCompatActivity {
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         legend.setTextSize(12f);
 
-        // X-Axis Formatter: Display Days of the Week
+        // X-Axis Display Days of the Week
         final String[] daysOfWeek = new String[7];
         Calendar calendar = Calendar.getInstance();
         for (int i = 0; i < 7; i++) {
@@ -179,7 +170,7 @@ public class BarChartActivity extends AppCompatActivity {
             }
         });
 
-        // Create a dataset for the bar chart
+        // Dataset for the bar chart
         BarDataSet barDataSet = new BarDataSet(barEntries, "App Usage");
         barDataSet.setColors(colors);
         barDataSet.setValueTextSize(14f);

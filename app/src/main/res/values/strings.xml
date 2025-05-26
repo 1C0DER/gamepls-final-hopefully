@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name" translatable="false">TrackNPlay</string>
     <string name="permission_description">In order to allow this application to collect your apps usage information, you need to allow "Package Usage Stats" permission from the Settings application.\nYou can cancel this permission anytime.</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
 </resources>
